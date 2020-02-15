@@ -5,6 +5,6 @@
 (3)start the server and visit localhost:8081/upload, then choose the file provided in testdata.<br>
 (4)search a word and get the result.<br>
 ## *A description of your indexing design*
-<a href="">Design</a>
+<a href="https://drive.google.com/file/d/12heP6ltuZDiwUNjgupgp1Vlv3A6JAMh1/view?usp=sharing">Design</a>
 ## *Display on Youtube*
 <a href="https://youtu.be/eUcxu-rIlDQ">Demo</a>
