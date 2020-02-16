@@ -25,7 +25,7 @@ public class SearchController {
     long t2 = 0l;
 
     t1 = System.currentTimeMillis();
-    String res = Util.searchWord(s.trim(),result);
+    String res = Util.searchWord(s.trim().toLowerCase(),result);
     t2 = System.currentTimeMillis();
 
     ModelAndView modelAndView = new ModelAndView();
