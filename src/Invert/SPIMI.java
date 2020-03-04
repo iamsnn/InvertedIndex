@@ -36,7 +36,7 @@ public class SPIMI{
   }
 
   // Read from the file
-  // "term term term term"
+  // "term@term@term@term"
   private List<String> readDataFile(String filePath) {
     File file = new File(filePath);
     List<String[]> dataArray = new ArrayList<>();
@@ -48,7 +48,6 @@ public class SPIMI{
       String[] tempArray;
       // read by lines
       while ((str = in.readLine()) != null) {
-
         tempArray = str.split("@");
         dataArray.add(tempArray);
       }
@@ -61,7 +60,6 @@ public class SPIMI{
     for (String[] array : dataArray) {
       for (String word : array) {
           words.add(word);
-
       }
     }
 
@@ -137,7 +135,6 @@ public class SPIMI{
   //create the result
   public void createInvertIndex(int startDocId){
 
-    //TODO : change docID to its index
     int docId = startDocId;
 
     Document tempDoc;
@@ -146,6 +143,7 @@ public class SPIMI{
     for(String path: wordsInFile){
       // get words by file
       List<String> words = readDataFile(path);
+
       tempDoc = new Document(words, path, docId+"");
 
       docId++;

@@ -12,28 +12,24 @@ import java.io.IOException;
 import Invert.Util;
 
 @Controller
-public class SearchController {
+public class ResultController {
 
   private static String UPLOAD_DIRECTORY = System.getProperty("rootpath")+"sources\\";
   private static String result = UPLOAD_DIRECTORY+"IIndex\\Result";
+  private static String stopWord = UPLOAD_DIRECTORY+"stopWords.txt";
+  private static String tempStoreListAndMap = UPLOAD_DIRECTORY+"Rank\\";
 
   @RequestMapping(value = "uploadWord", method = RequestMethod.POST)
   @ResponseBody
   public ModelAndView uploadSearch(@RequestParam("word") String s) throws IOException {
 
-    long t1 = 0l;
-    long t2 = 0l;
-
-    t1 = System.currentTimeMillis();
-    String res = Util.searchWord(s.trim().toLowerCase(),result);
-    t2 = System.currentTimeMillis();
+    String res = Util.searchWord(s,result,stopWord,tempStoreListAndMap+"list",tempStoreListAndMap+
+            "map");
 
     ModelAndView modelAndView = new ModelAndView();
-    modelAndView.setViewName("say");
-    modelAndView.addObject("word",s.trim());
+    modelAndView.setViewName("result");
+    modelAndView.addObject("sentence",s);
     modelAndView.addObject("res",res);
-    modelAndView.addObject("time",t2-t1+"ms");
-    modelAndView.addObject("size",Util.getFileSize(result)/1024l+"KB");
 
     return modelAndView;
   }

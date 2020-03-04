@@ -9,8 +9,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,10 +25,12 @@ public class PreTreatTool {
 
   private List<String> effectWordPaths = new ArrayList<>();
 
-
   private int part = 1;
   private int docId;
   private boolean isFirst = true;
+
+  private List<Integer> eachLen = new ArrayList<>();
+  private Map<String,Map<Integer,Integer>> wordFreqInDoc = new HashMap<>();
 
 
   public PreTreatTool(String filePaths,Set<String> FILTER_WORDS,String tempStore) {
@@ -34,7 +38,6 @@ public class PreTreatTool {
     this.tempStore = tempStore;
     readDataFile(filePaths);
   }
-
   public List<String> getEFWPaths() {
     return this.effectWordPaths;
   }
@@ -42,6 +45,35 @@ public class PreTreatTool {
     return docId;
   }
 
+  public List<Integer> getEachLen() {
+    return eachLen;
+  }
+  public Map<String,Map<Integer,Integer>> getWordFreqInDoc() {
+    return wordFreqInDoc;
+  }
+
+  private void countWordInEachDoc(List<List<String>> dataArray,int docID){
+    for (List<String> array : dataArray) {
+      for (String word : array) {
+        if(word.trim().length()>0){
+            if(!wordFreqInDoc.containsKey(word)){
+              wordFreqInDoc.put(word,new HashMap<>());
+              wordFreqInDoc.get(word).put(docID,1);
+            }
+            else{
+              if(wordFreqInDoc.get(word).containsKey(docID)){
+                wordFreqInDoc.get(word).put(docID,wordFreqInDoc.get(word).get(docID)+1);
+              }
+              else{
+                wordFreqInDoc.get(word).put(docID,1);
+              }
+            }
+        }
+      }
+    }
+
+
+  }
 
   private void readDataFile(String filePath) {
 
@@ -49,12 +81,16 @@ public class PreTreatTool {
       List<List<String>> dataArray = new ArrayList<>();
       List<String> words = new ArrayList<>();
 
+      //todo
+      int docID = 0;
+
       try {
         BufferedReader in = new BufferedReader(new FileReader(file));
         String str="";
         List<String> tempArray = new ArrayList<>();
 
         // read by line
+        // documents are seperated by 'SPACE'
         while ((str = in.readLine()) != null) {
           tempArray = dealWithAttr(str);
 
@@ -63,44 +99,71 @@ public class PreTreatTool {
           }
           else{
 
+            //Count the number
+            int count = 0;
+
             //output to the txt
             for (List<String> array : dataArray) {
               for (String word : array) {
-                if(word.trim().length()>1)
+                if(word.trim().length()>1){
                   words.add(word.trim());
+                }
+                count++;
+
               }
             }
+
+            //add number to each document
+            this.eachLen.add(count);
 
             String name = words.get(1);
 
             if(isFirst){
               docId = Integer.parseInt(name);
               isFirst = false;
+              docID = docId;
             }
 
-            List<String> tempWords = filterWords(words);
+            //countWordInEachDoc(dataArray,docID-1);
+
+
+            List<String> tempWords = filterWords(words,docID-1);
             writeOutOperation(tempWords,
                     tempStore+ name);
             effectWordPaths.add(tempStore+name);
             words = new ArrayList<>();
             dataArray = new ArrayList<>();
             noDuplicateWORDS = new HashSet<>();
+            //which current
+            docID++;
           }
 
         }
+
+        //Count the number
+        int count = 0;
+
+
 
         //last line
         //output to the txt
         for (List<String> array : dataArray) {
           for (String word : array) {
-            if(word.trim().length()>1)
+            if(word.trim().length()>1){
               words.add(word.trim());
+            }
+            count++;
           }
         }
+
+        //add number to each document
+        this.eachLen.add(count);
+
+
         String name = words.get(1);
 
-
-        List<String> tempWords = filterWords(words);
+        //countWordInEachDoc(dataArray,docID-1);
+        List<String> tempWords = filterWords(words,docID-1);
 
         writeOutOperation(tempWords,
                 tempStore+ name);
@@ -116,6 +179,8 @@ public class PreTreatTool {
         noDuplicateWORDS = new HashSet<>();
 
         in.close();
+
+
       }
       catch (IOException e) {
         e.getStackTrace();
@@ -123,7 +188,7 @@ public class PreTreatTool {
 
   }
 
-  private List<String> filterWords(List<String> words) {
+  private List<String> filterWords(List<String> words,int docID) {
 
     // adj pattern
     Pattern adjPattern;
@@ -161,7 +226,7 @@ public class PreTreatTool {
       //replace ( ) to ""
       w = w.replace("(","");
       w = w.replace(")","");
-      if(w.length()<2){
+      if(w.length()<2 || (w.contains("+")&&w.contains("/")) | (w.contains("/")&&w.contains("@"))){
         continue;
       }
 
@@ -172,6 +237,36 @@ public class PreTreatTool {
         continue;
       }
 
+      if(!wordFreqInDoc.containsKey(w)){
+        wordFreqInDoc.put(w,new HashMap<>());
+        wordFreqInDoc.get(w).put(docID,1);
+      }
+      else{
+        if(wordFreqInDoc.get(w).containsKey(docID)){
+          wordFreqInDoc.get(w).put(docID,wordFreqInDoc.get(w).get(docID)+1);
+        }
+        else{
+          wordFreqInDoc.get(w).put(docID,1);
+        }
+      }
+
+      if(w.contains("-")){
+        for(String ns:w.split("-")){
+          if(!wordFreqInDoc.containsKey(ns)){
+            wordFreqInDoc.put(ns,new HashMap<>());
+            wordFreqInDoc.get(ns).put(docID,1);
+          }
+          else{
+            if(wordFreqInDoc.get(ns).containsKey(docID)){
+              wordFreqInDoc.get(ns).put(docID,wordFreqInDoc.get(ns).get(docID)+1);
+            }
+            else{
+              wordFreqInDoc.get(ns).put(docID,1);
+            }
+          }
+        }
+      }
+
       adjMatcher = adjPattern.matcher(w);
       numberMatcher = numberPattern.matcher(w);
 
@@ -180,7 +275,14 @@ public class PreTreatTool {
         continue;
       }
 
+
+
       noDuplicateWORDS.add(w);
+//      if(w.contains("-")){
+//        for(String ns:w.split("-")){
+//          noDuplicateWORDS.add(ns);
+//        }
+//      }
 
     }
 
@@ -315,6 +417,9 @@ public class PreTreatTool {
       }
 
     }
+
+
+
     return tempArray;
   }
 }
