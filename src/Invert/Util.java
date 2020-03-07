@@ -171,7 +171,7 @@ public class Util {
     List<Integer> ll = bm25.getResult();
 
     if(ll.size() == 0){
-      return "NO PROPER Result";
+      return "";
     }
 
     StringBuilder sb = new StringBuilder("");

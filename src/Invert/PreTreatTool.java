@@ -52,29 +52,6 @@ public class PreTreatTool {
     return wordFreqInDoc;
   }
 
-  private void countWordInEachDoc(List<List<String>> dataArray,int docID){
-    for (List<String> array : dataArray) {
-      for (String word : array) {
-        if(word.trim().length()>0){
-            if(!wordFreqInDoc.containsKey(word)){
-              wordFreqInDoc.put(word,new HashMap<>());
-              wordFreqInDoc.get(word).put(docID,1);
-            }
-            else{
-              if(wordFreqInDoc.get(word).containsKey(docID)){
-                wordFreqInDoc.get(word).put(docID,wordFreqInDoc.get(word).get(docID)+1);
-              }
-              else{
-                wordFreqInDoc.get(word).put(docID,1);
-              }
-            }
-        }
-      }
-    }
-
-
-  }
-
   private void readDataFile(String filePath) {
 
       File file = new File(filePath);
@@ -237,6 +214,11 @@ public class PreTreatTool {
         continue;
       }
 
+      numberMatcher = numberPattern.matcher(w);
+      if(numberMatcher.matches()){
+        continue;
+      }
+
       if(!wordFreqInDoc.containsKey(w)){
         wordFreqInDoc.put(w,new HashMap<>());
         wordFreqInDoc.get(w).put(docID,1);
@@ -267,22 +249,15 @@ public class PreTreatTool {
         }
       }
 
-      adjMatcher = adjPattern.matcher(w);
-      numberMatcher = numberPattern.matcher(w);
-
-      // adj OR adv OR digit-numbers
-      if (adjMatcher.matches() || numberMatcher.matches()) {
-        continue;
-      }
-
+//      adjMatcher = adjPattern.matcher(w);
+//      // adj OR adv OR digit-numbers
+//      if (adjMatcher.matches() ) {
+//        continue;
+//      }
 
 
       noDuplicateWORDS.add(w);
-//      if(w.contains("-")){
-//        for(String ns:w.split("-")){
-//          noDuplicateWORDS.add(ns);
-//        }
-//      }
+
 
     }
 

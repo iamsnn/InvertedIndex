@@ -12,7 +12,7 @@ public class BM25 {
 //  List<Integer> df = new ArrayList<>();
   //how many Doc
   int totalDoc = 0;
-  double k1 = 2.0;
+  double k1 = 1.5;
   double b = 0.75;
   double averLen = 0.0;
 
@@ -33,22 +33,23 @@ public class BM25 {
 
     //top-K problem
     PriorityQueue<String[]> pq = new PriorityQueue<>((a,b)->{
-      return Double.valueOf(b[0])-Double.valueOf(a[0])>=0.0?1:-1;
+      return Double.valueOf(b[0])-Double.valueOf(a[0])>0?1:-1;
     });
 
     //score to each document
     //wordFreqInDoc of doci
     for(int i=0;i<totalDoc;i++){
       String[] res = score(Query,src,eachLen.get(i), wordCountInDoc,eachLen,i);
-
-      if(Double.parseDouble(res[0])>=0.0){
+      if(Double.parseDouble(res[0])>0.4){
         pq.offer(res);
       }
     }
-    int count = 9;
-    while(count>=0&&!pq.isEmpty()){
-      count--;
-      this.result.add(Integer.valueOf(pq.poll()[1]));
+
+    //int count = 9;
+    while(/*count>=0&&*/!pq.isEmpty()){
+      //count--;
+      String[] top = pq.poll();
+      this.result.add(Integer.valueOf(top[1]));
     }
 
   }
@@ -61,9 +62,10 @@ public class BM25 {
     int len = Query.size();
     double[] res = new double[len];
     for(int i=0;i<len;i++){
-      double up = this.totalDoc-src.get(Query.get(i)).size()+0.5;
-      double down = src.get(Query.get(i)).size()+0.5;
-      res[i] = Math.log(up/down);
+
+      double up = this.totalDoc-src.getOrDefault(Query.get(i),new ArrayList<>()).size()+0.5;
+      double down = src.getOrDefault(Query.get(i),new ArrayList<>()).size()+0.5;
+      res[i] = Math.log(up)-Math.log(down);
     }
 
     return res;
@@ -109,7 +111,7 @@ public class BM25 {
     double res = 0.0;
 
     if(!wordCountInDoc.containsKey(qi)){
-      return res;
+      return 0.001;
     }
 
     if(wordCountInDoc.get(qi).containsKey(docId)){

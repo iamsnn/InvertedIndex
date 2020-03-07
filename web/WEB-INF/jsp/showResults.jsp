@@ -9,7 +9,7 @@
 <html>
 <body>
 <form method="POST" action="uploadWord" >
-    Word to Search: <input type="text" name="word">
+    Query to Search: <input type="text" name="word">
     <p></p>
     Press here to search the word: <input type="submit" value="Search">
 </form>
