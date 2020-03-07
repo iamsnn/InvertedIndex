@@ -24,4 +24,9 @@ public class MyController {
     return "search";
   }
 
+  @RequestMapping("/result")
+  public String result(Model model) {
+    return "showResults";
+  }
+
 }

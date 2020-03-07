@@ -21,6 +21,7 @@ public class FileUploadController {
   private static String stopWord = UPLOAD_DIRECTORY+"stopWords.txt";
   private static String tempStore = UPLOAD_DIRECTORY+"src\\";
   private static String tempStoreInvertIndex = UPLOAD_DIRECTORY+"IIndex\\";
+  private static String tempStoreListAndMap = UPLOAD_DIRECTORY+"Rank\\";
 
   @RequestMapping(value = "uploadFile", method = RequestMethod.POST)
   public ModelAndView uploadFile(@RequestParam("fileList") MultipartFile[] files) {
@@ -48,10 +49,10 @@ public class FileUploadController {
     }
 
     //build Inverted list and store to the result
-    Util.Process(filePaths,stopWord,tempStoreInvertIndex,tempStore);
+    Util.Process(filePaths,stopWord,tempStoreInvertIndex,tempStore,tempStoreListAndMap);
 
     //redirect to the result page
-    return new ModelAndView("search");
+    return new ModelAndView("showResults");
   }
 
 }
